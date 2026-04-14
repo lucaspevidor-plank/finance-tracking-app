@@ -9,18 +9,28 @@ const transactions = [
 ];
 
 const categories = [
-  { name: "Housing", amount: 1400, total: 4200, color: "bg-violet-500" },
-  { name: "Food", amount: 620, total: 4200, color: "bg-indigo-500" },
-  { name: "Transport", amount: 280, total: 4200, color: "bg-blue-500" },
-  { name: "Entertainment", amount: 145, total: 4200, color: "bg-sky-500" },
-  { name: "Utilities", amount: 210, total: 4200, color: "bg-cyan-500" },
+  { name: "Housing", amount: 1400, color: "bg-violet-500" },
+  { name: "Food", amount: 620, color: "bg-indigo-500" },
+  { name: "Transport", amount: 280, color: "bg-blue-500" },
+  { name: "Entertainment", amount: 145, color: "bg-sky-500" },
+  { name: "Utilities", amount: 210, color: "bg-cyan-500" },
 ];
 
+const totalBalance = 24_381.52;
+const monthlyGoal = 5_000;
+
 export default function Home() {
-  const totalBalance = 24_381.52;
-  const monthlyIncome = 5_050.0;
-  const monthlyExpenses = 1_308.08;
+  const monthlyIncome = transactions
+    .filter((tx) => tx.amount > 0)
+    .reduce((sum, tx) => sum + tx.amount, 0);
+
+  const monthlyExpenses = transactions
+    .filter((tx) => tx.amount < 0)
+    .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+
   const savings = monthlyIncome - monthlyExpenses;
+  const savingsRate = monthlyIncome > 0 ? Math.round((savings / monthlyIncome) * 100) : 0;
+  const goalPct = Math.max(0, Math.min(Math.round((savings / monthlyGoal) * 100), 100));
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
@@ -84,8 +94,8 @@ export default function Home() {
           <SummaryCard
             label="Net Savings"
             value={`$${savings.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
-            change="74.9% savings rate"
-            positive
+            change={`${savingsRate}% savings rate`}
+            positive={savings >= 0}
             icon="🎯"
             accent="from-amber-400 to-orange-500"
           />
@@ -148,7 +158,9 @@ export default function Home() {
             </div>
             <div className="px-6 py-5 space-y-5">
               {categories.map((cat) => {
-                const pct = Math.round((cat.amount / cat.total) * 100);
+                const pct = monthlyIncome > 0
+                  ? Math.min(Math.round((cat.amount / monthlyIncome) * 100), 100)
+                  : 0;
                 return (
                   <div key={cat.name}>
                     <div className="flex items-center justify-between mb-1.5">
@@ -173,12 +185,18 @@ export default function Home() {
             <div className="px-6 pb-6">
               <div className="rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 p-4 text-white">
                 <p className="text-xs font-medium opacity-80">Monthly goal</p>
-                <p className="text-2xl font-bold mt-0.5">$5,000</p>
-                <p className="text-xs opacity-70 mt-1">You&apos;re on track — great job!</p>
+                <p className="text-2xl font-bold mt-0.5">${monthlyGoal.toLocaleString()}</p>
+                <p className="text-xs opacity-70 mt-1">
+                  {goalPct >= 100
+                    ? "Goal reached — amazing!"
+                    : goalPct >= 50
+                    ? "You're on track — great job!"
+                    : "Keep going — you can do it!"}
+                </p>
                 <div className="mt-3 h-1.5 rounded-full bg-white/20 overflow-hidden">
-                  <div className="h-full rounded-full bg-white" style={{ width: "74%" }} />
+                  <div className="h-full rounded-full bg-white" style={{ width: `${goalPct}%` }} />
                 </div>
-                <p className="text-xs opacity-70 mt-1">74% saved</p>
+                <p className="text-xs opacity-70 mt-1">{goalPct}% saved</p>
               </div>
             </div>
           </div>
