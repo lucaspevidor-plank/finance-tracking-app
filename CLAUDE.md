@@ -24,3 +24,35 @@ This is a **Next.js 16.2.3** app using the **App Router** (`app/` directory). Ne
 - **Language**: TypeScript (strict mode). Path alias `@/*` resolves to the repo root
 - **React**: 19.2.4 — Server Components are the default; add `"use client"` only when needed for interactivity or browser APIs
 - **Fonts**: Geist Sans and Geist Mono loaded via `next/font/google` in the root layout
+
+## Project Structure
+
+```
+app/
+├── layout.tsx                      # Root layout (fonts, global providers)
+├── page.tsx                        # Root route — redirects to /pages/dashboard
+├── globals.css                     # Global styles and Tailwind @theme configuration
+├── components/                     # Shared/reusable UI components
+│   ├── Navbar.tsx
+│   ├── SummaryCard.tsx
+│   ├── TransactionList.tsx
+│   └── SpendingBreakdown.tsx
+├── pages/                          # App Router page segments (folder name = URL segment)
+│   └── dashboard/
+│       └── page.tsx                # /pages/dashboard — main dashboard view
+├── hooks/                          # Custom React hooks (use* prefix)
+├── lib/                            # Utility functions, helpers, and shared logic
+│   └── mock-data.ts                # Placeholder data (replace with real API calls)
+├── types/                          # Shared TypeScript types and interfaces
+│   └── finance.ts                  # Transaction, Category interfaces
+└── api/                            # API route handlers (route.ts files)
+```
+
+### Conventions
+
+- **Components**: All reusable UI components go in `app/components/`. One component per file, named with PascalCase (e.g., `TransactionCard.tsx`).
+- **Pages**: Route segments live under `app/pages/[route]/page.tsx`. Keep page files thin — delegate logic to components and hooks.
+- **Hooks**: Custom hooks go in `app/hooks/`, prefixed with `use` (e.g., `useTransactions.ts`).
+- **Lib**: Pure utility functions and data-fetching helpers go in `app/lib/`. Placeholder data lives in `app/lib/mock-data.ts`.
+- **Types**: Shared TypeScript interfaces and types go in `app/types/`.
+- **API routes**: Server-side route handlers go in `app/api/[route]/route.ts`.
